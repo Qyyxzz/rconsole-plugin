@@ -103,7 +103,7 @@ import { OpenaiBuilder } from "../utils/openai-builder.js";
 import { redisExistAndGetKey, redisExistKey, redisGetKey, redisSetKey } from "../utils/redis-util.js";
 import { saveTDL, startTDL } from "../utils/tdl-util.js";
 import { genVerifyFp } from "../utils/tiktok.js";
-import Translate from "../utils/trans-strategy.js";
+import { Translate, GeminiOpenAITranslateStrategy, DeeplTranslateStrategy, TencentTranslateStrategy } from "../utils/trans-strategy.js";
 import { mid2id } from "../utils/weibo.js";
 import { convertToSeconds, removeParams, ytbFormatTime } from "../utils/youtube.js";
 import { ytDlpGetDuration, ytDlpGetThumbnail, ytDlpGetTilt, ytDlpHelper } from "../utils/yt-dlp-util.js";
@@ -124,7 +124,7 @@ export class tools extends plugin {
             name: "R插件工具和学习类",
             dsc: "R插件工具相关指令",
             event: "message.group",
-            priority: 300,
+            priority: 50,
             rule: [
                 {
                     reg: `^(翻|trans)[${ tools.Constants.existsTransKey }]`,
@@ -303,6 +303,12 @@ export class tools extends plugin {
         this.translateEngine = new Translate({
             deeplApiUrls: this.toolsConfig.deeplApiUrls,
             proxy: this.myProxy,
+            aiBaseURL: this.toolsConfig.aiBaseURL,
+            aiApiKey: this.toolsConfig.aiApiKey,
+            aiModel: this.toolsConfig.aiModel,
+            xaiBaseURL: this.toolsConfig.xaiBaseURL,
+            xaiApiKey: this.toolsConfig.xaiApiKey,
+            xaiModel: this.toolsConfig.xaiModel,
         });
         // 并发队列
         this.queue = new PQueue({ concurrency: Number(this.toolsConfig.queueConcurrency) });
@@ -314,6 +320,12 @@ export class tools extends plugin {
         this.aiApiKey = this.toolsConfig.aiApiKey;
         // ai模型
         this.aiModel = this.toolsConfig.aiModel;
+        // api接口
+        this.ApiBaseURL = this.toolsConfig.ApiBaseURL;
+        // api api key
+        this.ApiKey = this.toolsConfig.ApiKey;
+        // api模型
+        this.ApiModel = this.toolsConfig.ApiModel;
         // 强制使用海外服务器
         this.forceOverseasServer = this.toolsConfig.forceOverseasServer;
         // 解析图片是否合并转发
@@ -2748,9 +2760,9 @@ export class tools extends plugin {
         }
 
         const builder = await new OpenaiBuilder()
-            .setBaseURL(this.aiBaseURL)
-            .setApiKey(this.aiApiKey)
-            .setModel(this.aiModel)
+            .setBaseURL(this.ApiBaseURL)
+            .setApiKey(this.ApiKey)
+            .setModel(this.ApiModel)
             .setPrompt(SUMMARY_PROMPT);
 
         if (this.aiModel.includes('deepseek')) {

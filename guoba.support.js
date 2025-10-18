@@ -343,6 +343,17 @@ export function supportGuoba() {
                     },
                 },
                 {
+                    field: "tools.neteaseCloudCookie",
+                    label: "网易云Cookie(云盘专用)",
+                    bottomHelpMessage:
+                        "专门用于云盘操作（上传、下载、获取云盘歌单）的网易云Cookie",
+                    component: "Input",
+                    required: false,
+                    componentProps: {
+                        placeholder: "请输入云盘专用的网易云Cookie",
+                    },
+                },
+                {
                     field: "tools.neteaseCookie",
                     label: "网易云Cookie",
                     bottomHelpMessage:
